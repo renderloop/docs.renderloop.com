@@ -124,7 +124,7 @@ includes more features than what&rsquo;s publicly available, <a href="mailto:dev
 <p>Finally, we also really want to hear about what features you&rsquo;d like to see, the bugs you find, or any general feedback on how to improve. Don&rsquo;t be shy, we&rsquo;d love
 to hear from you: <a href="mailto:developers@renderloop.com">developers@renderloop.com</a>.</p>
 
-<h1 id="quick-start">Quick Start</h1>
+<h1 id="quick-start">Quick start</h1>
 
 <blockquote>
 <p>A simple scene viewer application:</p>
@@ -136,18 +136,77 @@ to hear from you: <a href="mailto:developers@renderloop.com">developers@renderlo
 <span class="nx">app</span><span class="p">.</span><span class="nx">setScene</span><span class="p">(</span><span class="s1">'theme-park.ovrscene'</span><span class="p">);</span>
 
 <span class="c1">// Print hello world</span>
-
 <span class="nx">app</span><span class="p">.</span><span class="nx">print</span><span class="p">(</span><span class="s2">"Hello World from Javascript!"</span><span class="p">);</span>
 </code></pre>
 
-<p>Once you&rsquo;ve logged and created the .js that will drive your app, with a single line of code you can
-create a virtual reality environment.</p>
+<p>Getting started takes a few steps:</p>
 
-<aside class="notice"> For now, the only natively supported scene format is Oculus&rsquo; <code>.ovrscene</code>. You can turn your <code>.fbx</code> files into <code>.ovrscene</code> using within the web app, or on your local machine using the SDK toolchain.</aside>
+<ol>
+<li>Create a Renderhooks or OVRScript project</li>
+<li>Make a build of your app</li>
+<li>Install the app on your phone</li>
+<li>Run the app and connect to it from your web browser</li>
+</ol>
+
+<h1 id="api">API</h1>
+
+<h2 id="renderhooks">Renderhooks</h2>
+<pre class="highlight javascript"><code><span class="c1">// Bind the right shader</span>
+<span class="nx">gl</span><span class="p">.</span><span class="nx">useProgram</span><span class="p">(</span><span class="nx">pyramidProgram</span><span class="p">);</span>
+
+<span class="c1">// Setup shader attributes and uniforms</span>
+<span class="nx">setBuffersAndAttributes</span><span class="p">(</span><span class="nx">pyramidAttributes</span><span class="p">);</span>
+<span class="nx">setUniforms</span><span class="p">(</span><span class="nx">pyramidUniforms</span><span class="p">);</span>
+
+<span class="c1">// Draw our pyramid</span>
+<span class="nx">gl</span><span class="p">.</span><span class="nx">drawArrays</span><span class="p">(</span><span class="nx">gl</span><span class="p">.</span><span class="nx">TRIANGLES</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">pyramidBuffer</span><span class="p">);</span>
+</code></pre>
+
+<p>Renderhooks is the runtime that binds your scripts to the behind the scenes rendering work. It works similarly to other scripting runtimes &ndash; sort of like Node or React Native.</p>
+
+<p>You can use Renderhooks to give you access to the lowest level WebGL primitives and function calls, but also use higher level APIs like three.js. If you want to use your own rendering library, you can import it as well.</p>
+
+<p>Finally, if you want to make apps specifically for GearVR, you&rsquo;ll have access to Oculus&rsquo; native SDK. This lets you take advantage of their UI elements, and also their OVRScene format.</p>
+
+<h2 id="ovrscript">OVRScript</h2>
+<pre class="highlight javascript"><code><span class="c1">// Create a new object based on a model package</span>
+<span class="kd">var</span> <span class="nx">player</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SceneObject</span><span class="p">(</span><span class="s2">"batman.ovrscene"</span><span class="p">);</span>
+</code></pre>
+
+<p>OVRScript gives you access to the native Oculus Mobile SDK API (in Oculus&rsquo; terms, this is their &ldquo;VR App Framework&rdquo;). These bindings let you view .ovrscene files, but also use .ovrscene files as objects in your scene, play sounds, and use the Oculus specific UI widgets.</p>
+
+<h2 id="webgl">WebGL</h2>
+<pre class="highlight javascript"><code><span class="c1">// Clear the screen, calling OpenGL directly</span>
+<span class="nx">gl</span><span class="p">.</span><span class="nx">clear</span><span class="p">(</span><span class="nx">gl</span><span class="p">.</span><span class="nx">COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="nx">gl</span><span class="p">.</span><span class="nx">DEPTH_BUFFER_BIT</span><span class="p">);</span>
+
+<span class="c1">// Create a shader</span>
+<span class="kd">var</span> <span class="nx">program</span> <span class="o">=</span> <span class="nx">gl</span><span class="p">.</span><span class="nx">createProgram</span><span class="p">();</span>
+
+<span class="c1">// Create and bind a buffer</span>
+<span class="kd">var</span> <span class="nx">vertexBuffer</span> <span class="o">=</span> <span class="nx">gl</span><span class="p">.</span><span class="nx">createBuffer</span><span class="p">();</span>
+<span class="nx">gl</span><span class="p">.</span><span class="nx">bindBuffer</span><span class="p">(</span> <span class="nx">gl</span><span class="p">.</span><span class="nx">ARRAY_BUFFER</span><span class="p">,</span> <span class="nx">vertexBuffer</span> <span class="p">);</span>
+<span class="nx">gl</span><span class="p">.</span><span class="nx">bufferData</span><span class="p">(</span> <span class="nx">gl</span><span class="p">.</span><span class="nx">ARRAY_BUFFER</span><span class="p">,</span> <span class="nx">vertices</span><span class="p">,</span> <span class="nx">gl</span><span class="p">.</span><span class="nx">STATIC_DRAW</span> <span class="p">);</span>
+</code></pre>
+
+<p>You can call WebGL functions as if you were in a browser environment. The function parameters and return values are as they would be in a browser. So, for example, you can use glDrawArrays() to render objects in your scene.</p>
 
 <h1 id="examples">Examples</h1>
 
-<h2 id="creating-an-object">Creating an object</h2>
+<h2 id="renderhooks-setting-up-three-js">Renderhooks: Setting up three.js</h2>
+<pre class="highlight javascript"><code><span class="c1">// Import three.js</span>
+<span class="kd">var</span> <span class="nx">THREE</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'three'</span><span class="p">);</span>
+
+<span class="c1">// Create a scene/camera</span>
+<span class="kd">var</span> <span class="nx">scene</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">Scene</span><span class="p">();</span>
+<span class="kd">var</span> <span class="nx">camera</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">PerspectiveCamera</span><span class="p">(</span> <span class="nx">fov</span><span class="p">,</span> <span class="nx">aspect</span><span class="p">,</span> <span class="nx">near</span><span class="p">,</span> <span class="nx">far</span> <span class="p">);</span>
+
+<span class="c1">// Create a renderer</span>
+<span class="kd">var</span> <span class="nx">renderer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">WebGLRenderer</span><span class="p">();</span>
+</code></pre>
+
+<p>The three.js API is available in both an OVRScript and a Renderhooks project. You can use it the same way you use three.js in any other projects.</p>
+
+<h2 id="ovrscript-creating-an-object">OVRScript: Creating an object</h2>
 <pre class="highlight javascript"><code><span class="c1">// Create a new object based on a model package</span>
 <span class="kd">var</span> <span class="nx">player</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SceneObject</span><span class="p">(</span><span class="s2">"batman.ovrscene"</span><span class="p">);</span>
 </code></pre>
@@ -155,7 +214,7 @@ create a virtual reality environment.</p>
 <p>Once created, object properties can be manipulated and animated. Before being visible, an object
 has to get added to the scene.</p>
 
-<h2 id="adding-an-object-to-a-scene">Adding an object to a scene</h2>
+<h2 id="ovrscript-adding-an-object-to-a-scene">OVRScript: Adding an object to a scene</h2>
 <pre class="highlight javascript"><code><span class="c1">// Add the previously created player object to the scene</span>
 <span class="nx">app</span><span class="p">.</span><span class="nx">addObject</span><span class="p">(</span><span class="nx">player</span><span class="p">);</span>
 </code></pre>
@@ -163,7 +222,7 @@ has to get added to the scene.</p>
 <p>Use the application object&rsquo;s addObject function to add an object to the scene. Once added to the scene, objects will be displayed at their
 set position and orientation.</p>
 
-<h2 id="manipulating-an-object">Manipulating an object</h2>
+<h2 id="ovrscript-manipulating-an-object">OVRScript: Manipulating an object</h2>
 <pre class="highlight javascript"><code><span class="c1">// Changing an object's properties</span>
 <span class="nx">player</span><span class="p">.</span><span class="nx">x</span> <span class="o">+=</span> <span class="p">.</span><span class="mi">3</span><span class="p">;</span>
 <span class="nx">player</span><span class="p">.</span><span class="nx">y</span> <span class="o">=</span> <span class="nx">maxHeight</span> <span class="o">-</span> <span class="mf">1.5</span><span class="p">;</span>
@@ -173,7 +232,7 @@ set position and orientation.</p>
 <p>Object position and orientation can be manipulated directly on the object itself. Position (x, y, z) and orientation (rotationX, rotationY, rotationZ) are
 immediately modifiable.</p>
 
-<h2 id="frame-callbacks">Frame callbacks</h2>
+<h2 id="ovrscript-frame-callbacks">OVRScript: Frame callbacks</h2>
 <pre class="highlight javascript"><code><span class="kd">function</span> <span class="nx">onFrameCallback</span><span class="p">()</span> <span class="p">{</span>
     <span class="nx">player</span><span class="p">.</span><span class="nx">x</span> <span class="o">+=</span> <span class="p">.</span><span class="mi">1</span><span class="p">;</span>
 <span class="p">}</span>
@@ -198,7 +257,7 @@ rendering occurs.</p>
 Input isn&rsquo;t frame-precise and may be delayed by a frame.
 </aside>
 
-<h1 id="video-tutorial">Video tutorial</h1>
+<h1 id="ovrscript-video-tutorial">OVRScript: Video tutorial</h1>
 
 <iframe style="margin-left: 15px" width="450" height="315" src="https://www.youtube.com/embed/FCKpRMZwByU" frameborder="0" allowfullscreen></iframe>
 
